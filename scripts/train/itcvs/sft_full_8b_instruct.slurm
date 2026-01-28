@@ -1,6 +1,6 @@
 #!/usr/bin/zsh
-#SBATCH -J sft_smoke_8b
-#SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/sft_smoke_8b_full_%j.txt
+#SBATCH -J sft_full_8b_instruct
+#SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/sft_full_8b_instruct%j.txt
 #SBATCH -t 02:00:00
 #SBATCH -c 16
 #SBATCH -p c23g
@@ -33,12 +33,12 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --dynamo_backend no \
   open_instruct/finetune.py \
   --exp_name itcvs_tulu3_8b_sft_smoke \
-  --model_name_or_path meta-llama/Meta-Llama-3.1-8B \
+  --model_name_or_path meta-llama/Meta-Llama-3.1-8B-Instruct \
   --use_slow_tokenizer \
   --chat_template tulu \
   --dataset_mixer_list /home/zs473554/projects/InstructionTunningWithCVS/data/instruction_tuning_dataset/moral_tuning_dataset.jsonl 1.0 \
   --dataset_mixer_list_splits train \
-  --output_dir checkpoints/itcvs/tulu3/sft/8b/full \
+  --output_dir checkpoints/itcvs/tulu3/sft/8b_instruct/full \
   --do_not_randomize_output_dir \
   --add_seed_and_date_to_exp_name False \
   --max_seq_length 2048 \
@@ -48,7 +48,7 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --lr_scheduler_type linear \
   --warmup_ratio 0.03 \
   --weight_decay 0.0 \
-  --max_train_steps 2000 \
+  --max_train_steps 3000 \
   --checkpointing_steps 500 \
   --keep_last_n_checkpoints 2 \
   --logging_steps 10 \
@@ -58,3 +58,4 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --push_to_hub False \
   --try_launch_beaker_eval_jobs False \
   --try_auto_save_to_beaker False'
+
