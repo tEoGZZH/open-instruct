@@ -52,8 +52,6 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --checkpointing_steps 100 \
   --keep_last_n_checkpoints 1 \
   --logging_steps 10 \
-  --eval_ratio 0.01 \
-  --eval_steps 50 \
   --seed 8 \
   --with_tracking False \
   --report_to none \

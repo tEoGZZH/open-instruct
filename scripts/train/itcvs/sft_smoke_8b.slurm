@@ -1,6 +1,6 @@
 #!/usr/bin/zsh
 #SBATCH -J sft_smoke_8b
-#SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/sft_smoke_8b_full_%j.txt
+#SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/sft_smoke_8b_eval_%j.txt
 #SBATCH -t 02:00:00
 #SBATCH -c 16
 #SBATCH -p c23g
@@ -38,7 +38,7 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --chat_template tulu \
   --dataset_mixer_list /home/zs473554/projects/InstructionTunningWithCVS/data/instruction_tuning_dataset/moral_tuning_dataset.jsonl 1.0 \
   --dataset_mixer_list_splits train \
-  --output_dir checkpoints/itcvs/tulu3/sft/8b/full \
+  --output_dir checkpoints/itcvs/tulu3/sft/8b/smoke_eval \
   --do_not_randomize_output_dir \
   --add_seed_and_date_to_exp_name False \
   --max_seq_length 2048 \
@@ -48,10 +48,12 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --lr_scheduler_type linear \
   --warmup_ratio 0.03 \
   --weight_decay 0.0 \
-  --max_train_steps 2000 \
-  --checkpointing_steps 500 \
-  --keep_last_n_checkpoints 2 \
+  --max_train_steps 200 \
+  --checkpointing_steps 100 \
+  --keep_last_n_checkpoints 1 \
   --logging_steps 10 \
+  --eval_ratio 0.001 \
+  --eval_steps 50 \
   --seed 8 \
   --with_tracking False \
   --report_to none \

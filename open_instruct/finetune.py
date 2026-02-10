@@ -85,7 +85,7 @@ class FlatArguments:
     _VALID_DICT_FIELDS = ["additional_model_arguments"]
 
     # Train-val split settings
-    eval_ratio: float = field(default=0.01, metadata={"help": "Fraction of train data used as eval split."})
+    eval_ratio: float = field(default=0.001, metadata={"help": "Fraction of train data used as eval split."})
     eval_steps: int | None = field(default=None, metadata={"help": "Run eval every eval_steps steps."})
 
     exp_name: str = os.path.basename(__file__)[: -len(".py")]
