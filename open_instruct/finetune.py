@@ -84,6 +84,10 @@ class FlatArguments:
     # Note: the suggested ellipses typing above causes errors on python 3.10, so they are omitted.
     _VALID_DICT_FIELDS = ["additional_model_arguments"]
 
+    # Train-val split settings
+    eval_ratio: float = field(default=0.01, metadata={"help": "Fraction of train data used as eval split."})
+    eval_steps: int | None = field(default=None, metadata={"help": "Run eval every eval_steps steps."})
+
     exp_name: str = os.path.basename(__file__)[: -len(".py")]
     """The name of this experiment"""
     do_not_randomize_output_dir: bool = False
@@ -350,6 +354,32 @@ class FlatArguments:
                 setattr(self, dict_feld, loaded_dict)
 
 
+
+
+@torch.no_grad()
+def run_eval(model, eval_dataloader, accelerator):
+    model.eval()
+    total_loss = torch.tensor(0.0, device=accelerator.device)
+    total_pred_tokens = torch.tensor(0, dtype=torch.long, device=accelerator.device)
+
+    for batch in eval_dataloader:
+        outputs = model(**batch, use_cache=False)
+        loss = outputs.loss  # shape: (1,)
+        # Only count the tokens that contribute to the loss (i.e., not the padding tokens with label -100)
+        pred_tokens = (batch["labels"] != -100).sum()
+        total_loss += loss.detach() * pred_tokens
+        total_pred_tokens += pred_tokens
+
+    # gather across processes and compute final eval loss
+    total_loss = accelerator.gather(total_loss).sum()
+    total_pred_tokens = accelerator.gather(total_pred_tokens).sum()
+
+    eval_loss = (total_loss / total_pred_tokens).item()
+    model.train()
+    return eval_loss
+
+
+
 def main(args: FlatArguments, tc: TokenizerConfig):
     # ------------------------------------------------------------
     # Initialize the accelerator. We will let the accelerator handle device placement for us in this example.
@@ -484,7 +514,21 @@ def main(args: FlatArguments, tc: TokenizerConfig):
             dataset_skip_cache=args.dataset_skip_cache,
         )
         train_dataset = train_dataset.shuffle(seed=args.seed)
+        # train_dataset.set_format(type="pt")
+        
+        # split dataset
+        if args.eval_ratio and args.eval_ratio > 0:
+            split = train_dataset.train_test_split(test_size=args.eval_ratio, seed=args.seed)
+            train_dataset = split["train"]
+            eval_dataset = split["test"]
+        else:
+            eval_dataset = None
+
         train_dataset.set_format(type="pt")
+        if eval_dataset is not None:
+            eval_dataset.set_format(type="pt")
+
+
     if accelerator.is_main_process:
         visualize_token(train_dataset[0][INPUT_IDS_KEY], tokenizer)
 
@@ -611,6 +655,13 @@ def main(args: FlatArguments, tc: TokenizerConfig):
         train_dataset, shuffle=True, collate_fn=collate_fn, batch_size=args.per_device_train_batch_size
     )
 
+    # Eval dataloader creation if eval dataset is present
+    eval_dataloader = None
+    if eval_dataset is not None:
+        eval_dataloader = DataLoader(
+            eval_dataset, shuffle=False, collate_fn=collate_fn, batch_size=args.per_device_train_batch_size
+        )
+
     # Optimizer
     # Split weights in two groups, one with weight decay and the other not.
     no_decay = ["bias", "layer_norm.weight"]
@@ -670,9 +721,17 @@ def main(args: FlatArguments, tc: TokenizerConfig):
         num_warmup_steps=num_warmup_steps,
     )
     # Prepare everything with `accelerator`.
-    model, optimizer, train_dataloader, lr_scheduler = accelerator.prepare(
-        model, optimizer, train_dataloader, lr_scheduler
-    )
+    # model, optimizer, train_dataloader, lr_scheduler = accelerator.prepare(
+    #     model, optimizer, train_dataloader, lr_scheduler
+    # )
+    if eval_dataloader is not None:
+        model, optimizer, train_dataloader, eval_dataloader, lr_scheduler = accelerator.prepare(
+            model, optimizer, train_dataloader, eval_dataloader, lr_scheduler
+        )
+    else:
+        model, optimizer, train_dataloader, lr_scheduler = accelerator.prepare(
+            model, optimizer, train_dataloader, lr_scheduler
+        )
 
     # We need to recalculate our total training steps as the size of the training dataloader may have changed.
     num_update_steps_per_epoch = math.ceil(len(train_dataloader) / args.gradient_accumulation_steps)
@@ -862,6 +921,21 @@ def main(args: FlatArguments, tc: TokenizerConfig):
                     )
                     avg_loss = sum_loss / total_fwd_passes
                     metrics_to_log["train_loss"] = avg_loss
+
+                    # Eval loss
+                    do_eval = False
+                    if eval_dataloader is not None:
+                        if args.eval_steps and completed_steps % args.eval_steps == 0:
+                            do_eval = True
+                        elif args.eval_steps is None and args.logging_steps and completed_steps % args.logging_steps == 0:
+                            do_eval = True
+                    if do_eval:
+                        eval_loss = run_eval(model, eval_dataloader, accelerator)
+                        metrics_to_log["eval_loss"] = eval_loss
+                        metrics_to_log["eval_ppl"] = math.exp(eval_loss) if eval_loss < 20 else float("inf")
+                        logger.info(f"  Eval: step={completed_steps}, eval_loss={eval_loss}")
+
+
                     if args.verbose:
                         sec_per_step = (time.perf_counter() - start_time) / (completed_steps - resume_step)
                         steps_remaining = args.max_train_steps - completed_steps
