@@ -960,6 +960,12 @@ def main(args: FlatArguments, tc: TokenizerConfig):
                         )
                     if args.verbose:
                         accelerator.print(f"{metrics_to_log=}")
+                    metrics_to_log["step"] = completed_steps
+                    metrics_to_log["epoch"] = epoch
+                    if accelerator.is_main_process:
+                        metrics_path = os.path.join(args.output_dir, "metrics.jsonl")
+                        with open(metrics_path, "a") as f:
+                            f.write(json.dumps(metrics_to_log, ensure_ascii=False) + "\n")
                     if args.with_tracking:
                         accelerator.log(metrics_to_log, step=completed_steps)
                     maybe_update_beaker_description(
