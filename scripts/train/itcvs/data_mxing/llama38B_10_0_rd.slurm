@@ -37,7 +37,7 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --num_machines 1 \
   --dynamo_backend no \
   open_instruct/finetune.py \
-  --exp_name itcvs_tulu3_8b_sft_smoke \
+  --exp_name llama38B_10_0_rd \
   --model_name_or_path meta-llama/Meta-Llama-3.1-8B-Instruct \
   --use_slow_tokenizer \
   --chat_template tulu \
