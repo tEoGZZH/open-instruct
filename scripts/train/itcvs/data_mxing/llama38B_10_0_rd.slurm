@@ -43,7 +43,7 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --chat_template tulu \
   --dataset_mixer_list /home/zs473554/projects/InstructionTunningWithCVS/data/instruction_tuning_dataset/moral_tuning_dataset_sampled.jsonl 1.0 \
   --dataset_mixer_list_splits train \
-  --output_dir checkpoints/itcvs/tulu3/sft/8b_instruct/full \
+  --output_dir /work/zs473554/checkpoints/open-instruct/llama3/mixing/ten_zero/ \
   --do_not_randomize_output_dir \
   --add_seed_and_date_to_exp_name False \
   --max_seq_length 2048 \
