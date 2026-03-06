@@ -1,6 +1,6 @@
 #!/usr/bin/zsh
 #SBATCH -J mixing_7_3
-#SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/migxing_7_3%j.txt
+#SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/mixing_7_3_%j.txt
 #SBATCH -t 05:00:00
 #SBATCH -c 16
 #SBATCH -p c23g
@@ -12,6 +12,9 @@ set -euo pipefail
 cd /home/zs473554/projects/open-instruct
 source /home/zs473554/projects/open-instruct/.venv/bin/activate
 
+export HF_HOME=/hpcwork/zs473554/huggingface
+export HF_DATASETS_CACHE=$HF_HOME/datasets
+export HUGGINGFACE_HUB_CACHE=$HF_HOME/hub
 # Module load and cuda home
 module purge
 module load CUDA/12.4.0
