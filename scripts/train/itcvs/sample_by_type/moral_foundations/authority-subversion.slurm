@@ -11,6 +11,7 @@ set -euo pipefail
 
 cd /home/zs473554/projects/open-instruct
 source /home/zs473554/projects/open-instruct/.venv/bin/activate
+source /home/zs473554/jobscripts/hf_token.env
 
 # Module load and cuda home
 module purge
