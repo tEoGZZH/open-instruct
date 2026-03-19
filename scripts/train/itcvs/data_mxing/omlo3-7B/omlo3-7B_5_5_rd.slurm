@@ -5,7 +5,7 @@
 #SBATCH -c 16
 #SBATCH -p c23g
 #SBATCH --gres=gpu:1
-#SBATCH -A thes2082
+#SBATCH -A rwth1809
 
 set -euo pipefail
 
