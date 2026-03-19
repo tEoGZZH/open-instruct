@@ -1,5 +1,5 @@
 #!/usr/bin/zsh
-#SBATCH -J llama3_mixing_0_10
+#SBATCH -J llama3base_mixing_0_10
 #SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/llama3base_mixing_0_10_%j.txt
 #SBATCH -t 06:00:00
 #SBATCH -c 16
@@ -11,6 +11,7 @@ set -euo pipefail
 
 cd /home/zs473554/projects/open-instruct
 source /home/zs473554/projects/open-instruct/.venv/bin/activate
+source /home/zs473554/jobscripts/hf_token.env
 
 export HF_HOME=/hpcwork/zs473554/huggingface
 export HF_DATASETS_CACHE=$HF_HOME/datasets

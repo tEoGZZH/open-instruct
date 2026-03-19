@@ -11,6 +11,7 @@ set -euo pipefail
 
 cd /home/zs473554/projects/open-instruct
 source /home/zs473554/projects/open-instruct/.venv/bin/activate
+source /home/zs473554/jobscripts/hf_token.env
 
 export HF_HOME=/hpcwork/zs473554/huggingface
 export HF_DATASETS_CACHE=$HF_HOME/datasets
@@ -30,7 +31,7 @@ export PYTHONPATH=$(pwd)
 
 srun --chdir=/home/zs473554/projects/open-instruct \
   bash -lc '
-  export WANDB_PROJECT=OpenInstruct
+  export WANDB_PROJECT=OpenInstruct-Llama3base
   export WANDB_ENTITY=zhaohui-zeng-cn-rwth-aachen-university
   export WANDB_MODE=offline
 
