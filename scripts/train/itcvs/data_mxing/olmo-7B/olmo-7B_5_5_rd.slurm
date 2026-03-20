@@ -37,6 +37,7 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   export WANDB_PROJECT=OpenInstruct-OLMo-7B
   export WANDB_ENTITY=zhaohui-zeng-cn-rwth-aachen-university
   export WANDB_MODE=offline
+  export WANDB_NAME="${WANDB_PROJECT}_$(date +%Y%m%d%H%M%S)"
 
   accelerate launch \
   --mixed_precision bf16 \
@@ -71,6 +72,7 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --seed 8 \
   --with_tracking True \
   --report_to wandb \
+  --wandb_project_name OpenInstruct-OLMo-7B 
   --push_to_hub False \
   --try_launch_beaker_eval_jobs False \
   --try_auto_save_to_beaker False \
