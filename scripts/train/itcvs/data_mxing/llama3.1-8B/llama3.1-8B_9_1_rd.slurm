@@ -11,6 +11,7 @@ set -euo pipefail
 
 cd /home/zs473554/projects/open-instruct
 source /home/zs473554/projects/open-instruct/.venv/bin/activate
+export XDG_CACHE_HOME=/work/zs473554/.cache
 source /home/zs473554/jobscripts/hf_token.env
 
 export HF_HOME=/hpcwork/zs473554/huggingface
@@ -72,7 +73,7 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --seed 8 \
   --with_tracking True \
   --report_to wandb \
-  --wandb_project_name OpenInstruct-Llama3.1-8B 
+  --wandb_project_name OpenInstruct-Llama3.1-8B \
   --push_to_hub False \
   --try_launch_beaker_eval_jobs False \
   --try_auto_save_to_beaker False \
