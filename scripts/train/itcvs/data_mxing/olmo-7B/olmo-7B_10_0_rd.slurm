@@ -51,7 +51,7 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --max_seq_length 2048 \
   --per_device_train_batch_size 1 \
   --gradient_accumulation_steps 16 \
-  --learning_rate 2e-6 \
+  --learning_rate 5e-6 \
   --lr_scheduler_type linear \
   --warmup_ratio 0.03 \
   --weight_decay 0.0 \
