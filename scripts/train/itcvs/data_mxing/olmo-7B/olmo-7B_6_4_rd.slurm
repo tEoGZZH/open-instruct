@@ -1,6 +1,6 @@
 #!/usr/bin/zsh
-#SBATCH -J omlo3_mixing_5_5
-#SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/omlo3_mixing_5_5_%j.txt
+#SBATCH -J olmo7B_mixing_6_4
+#SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/olmo7B_mixing_6_4_%j.txt
 #SBATCH -t 05:00:00
 #SBATCH -c 16
 #SBATCH -p c23g
@@ -11,6 +11,7 @@ set -euo pipefail
 
 cd /home/zs473554/projects/open-instruct
 source /home/zs473554/projects/open-instruct/.venv/bin/activate
+source /home/zs473554/jobscripts/hf_token.env
 
 export HF_HOME=/hpcwork/zs473554/huggingface
 export HF_DATASETS_CACHE=$HF_HOME/datasets
@@ -33,7 +34,7 @@ export PYTHONPATH=$(pwd)
 
 srun --chdir=/home/zs473554/projects/open-instruct \
   bash -lc '
-  export WANDB_PROJECT=OpenInstruct
+  export WANDB_PROJECT=OpenInstruct-OLMo-7B
   export WANDB_ENTITY=zhaohui-zeng-cn-rwth-aachen-university
   export WANDB_MODE=offline
 
@@ -43,21 +44,21 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --num_machines 1 \
   --dynamo_backend no \
   open_instruct/finetune.py \
-  --exp_name omlo3_5_5_rd \
+  --exp_name olmo7B_6_4_rd \
   --model_name_or_path allenai/Olmo-3-1025-7B \
   --use_slow_tokenizer \
   --chat_template tulu \
   --dataset_mixer_list \
-  /home/zs473554/projects/InstructionTunningWithCVS/data/instruction_tuning_dataset/moral_tuning_dataset_sampled.jsonl 0.5 \
-  allenai/tulu-3-sft-mixture 0.5 \
+  /home/zs473554/projects/InstructionTunningWithCVS/data/instruction_tuning_dataset/moral_tuning_dataset_sampled.jsonl 0.6 \
+  allenai/tulu-3-sft-mixture 0.4 \
   --dataset_mixer_list_splits train \
-  --output_dir /hpcwork/zs473554/checkpoints/open-instruct/omlo3/mixing/five_five/ \
+  --output_dir /hpcwork/zs473554/checkpoints/open-instruct/olmo7B/mixing/six_four/ \
   --do_not_randomize_output_dir \
   --add_seed_and_date_to_exp_name False \
   --max_seq_length 2048 \
   --per_device_train_batch_size 1 \
   --gradient_accumulation_steps 16 \
-  --learning_rate 2e-5 \
+  --learning_rate 2e-6 \
   --lr_scheduler_type linear \
   --warmup_ratio 0.03 \
   --weight_decay 0.0 \
@@ -72,6 +73,8 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --report_to wandb \
   --push_to_hub False \
   --try_launch_beaker_eval_jobs False \
-  --try_auto_save_to_beaker False'
+  --try_auto_save_to_beaker False \
+  --dataset_cache_mode local \
+  --dataset_local_cache_dir /work/zs473554/open-instruct-cache'
   
 

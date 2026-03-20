@@ -1,6 +1,6 @@
 #!/usr/bin/zsh
-#SBATCH -J omlo3_mixing_7_3
-#SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/omlo3_mixing_7_3_%j.txt
+#SBATCH -J llama3base_mixing_9_1
+#SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/llama3base_mixing_9_1_%j.txt
 #SBATCH -t 05:00:00
 #SBATCH -c 16
 #SBATCH -p c23g
@@ -11,10 +11,14 @@ set -euo pipefail
 
 cd /home/zs473554/projects/open-instruct
 source /home/zs473554/projects/open-instruct/.venv/bin/activate
+source /home/zs473554/jobscripts/hf_token.env
 
 export HF_HOME=/hpcwork/zs473554/huggingface
 export HF_DATASETS_CACHE=$HF_HOME/datasets
 export HUGGINGFACE_HUB_CACHE=$HF_HOME/hub
+export HF_HUB_ETAG_TIMEOUT=60
+export HF_HUB_DOWNLOAD_TIMEOUT=60
+
 # Module load and cuda home
 module purge
 module load CUDA/12.4.0
@@ -30,7 +34,7 @@ export PYTHONPATH=$(pwd)
 
 srun --chdir=/home/zs473554/projects/open-instruct \
   bash -lc '
-  export WANDB_PROJECT=OpenInstruct
+  export WANDB_PROJECT=OpenInstruct-Llama3base
   export WANDB_ENTITY=zhaohui-zeng-cn-rwth-aachen-university
   export WANDB_MODE=offline
 
@@ -40,21 +44,21 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --num_machines 1 \
   --dynamo_backend no \
   open_instruct/finetune.py \
-  --exp_name omlo3_7_3_rd \
-  --model_name_or_path allenai/Olmo-3-1025-7B \
+  --exp_name llama3base_9_1_rd \
+  --model_name_or_path meta-llama/Llama-3.1-8B \
   --use_slow_tokenizer \
   --chat_template tulu \
   --dataset_mixer_list \
-  /home/zs473554/projects/InstructionTunningWithCVS/data/instruction_tuning_dataset/moral_tuning_dataset_sampled.jsonl 0.7 \
-  allenai/tulu-3-sft-mixture 0.3 \
+  /home/zs473554/projects/InstructionTunningWithCVS/data/instruction_tuning_dataset/moral_tuning_dataset_sampled.jsonl 0.9 \
+  allenai/tulu-3-sft-mixture 0.1 \
   --dataset_mixer_list_splits train \
-  --output_dir /hpcwork/zs473554/checkpoints/open-instruct/omlo3/mixing/seven_three/ \
+  --output_dir /hpcwork/zs473554/checkpoints/open-instruct/llama3base/mixing/nine_one/ \
   --do_not_randomize_output_dir \
   --add_seed_and_date_to_exp_name False \
   --max_seq_length 2048 \
   --per_device_train_batch_size 1 \
   --gradient_accumulation_steps 16 \
-  --learning_rate 2e-5 \
+  --learning_rate 2e-6 \
   --lr_scheduler_type linear \
   --warmup_ratio 0.03 \
   --weight_decay 0.0 \
@@ -69,6 +73,8 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --report_to wandb \
   --push_to_hub False \
   --try_launch_beaker_eval_jobs False \
-  --try_auto_save_to_beaker False'
+  --try_auto_save_to_beaker False \
+  --dataset_cache_mode local \
+  --dataset_local_cache_dir /work/zs473554/open-instruct-cache'
   
 

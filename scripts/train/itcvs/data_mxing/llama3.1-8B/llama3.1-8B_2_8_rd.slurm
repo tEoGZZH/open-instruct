@@ -1,6 +1,6 @@
 #!/usr/bin/zsh
-#SBATCH -J llama3base_mixing_0_10
-#SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/llama3base_mixing_0_10_%j.txt
+#SBATCH -J llama3base_mixing_2_8
+#SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/llama3base_mixing_2_8_%j.txt
 #SBATCH -t 06:00:00
 #SBATCH -c 16
 #SBATCH -p c23g
@@ -44,19 +44,21 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --num_machines 1 \
   --dynamo_backend no \
   open_instruct/finetune.py \
-  --exp_name llama3base_0_10_rd \
+  --exp_name llama3base_2_8_rd \
   --model_name_or_path meta-llama/Llama-3.1-8B \
   --use_slow_tokenizer \
   --chat_template tulu \
-  --dataset_mixer_list allenai/tulu-3-sft-mixture 1.0 \
+  --dataset_mixer_list \
+  /home/zs473554/projects/InstructionTunningWithCVS/data/instruction_tuning_dataset/moral_tuning_dataset_sampled.jsonl 0.2 \
+  allenai/tulu-3-sft-mixture 0.8 \
   --dataset_mixer_list_splits train \
-  --output_dir /hpcwork/zs473554/checkpoints/open-instruct/llama3base/mixing/zero_ten/ \
+  --output_dir /hpcwork/zs473554/checkpoints/open-instruct/llama3base/mixing/two_eight/ \
   --do_not_randomize_output_dir \
   --add_seed_and_date_to_exp_name False \
   --max_seq_length 2048 \
   --per_device_train_batch_size 1 \
   --gradient_accumulation_steps 16 \
-  --learning_rate 2e-5 \
+  --learning_rate 2e-6 \
   --lr_scheduler_type linear \
   --warmup_ratio 0.03 \
   --weight_decay 0.0 \
