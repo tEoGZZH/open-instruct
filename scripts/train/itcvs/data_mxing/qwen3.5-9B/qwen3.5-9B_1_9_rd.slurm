@@ -1,7 +1,7 @@
 #!/usr/bin/zsh
 #SBATCH -J qwen35_9B_mixing_1_9
 #SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/qwen35_9B_mixing_1_9_%j.txt
-#SBATCH -t 06:00:00
+#SBATCH -t 06:30:00
 #SBATCH -c 16
 #SBATCH -p c23g
 #SBATCH --gres=gpu:1

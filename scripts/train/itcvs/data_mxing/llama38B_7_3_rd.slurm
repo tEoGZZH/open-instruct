@@ -1,7 +1,7 @@
 #!/usr/bin/zsh
 #SBATCH -J mixing_7_3
 #SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/mixing_7_3_%j.txt
-#SBATCH -t 05:00:00
+#SBATCH -t 06:30:00
 #SBATCH -c 16
 #SBATCH -p c23g
 #SBATCH --gres=gpu:1
