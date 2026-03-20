@@ -48,8 +48,10 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   open_instruct/finetune.py \
   --exp_name olmo7B_4_6_rd \
   --model_name_or_path allenai/Olmo-3-1025-7B \
+  --use_fast True \
   --use_slow_tokenizer \
   --chat_template tulu \
+  --add_bos True \
   --dataset_mixer_list \
   /home/zs473554/projects/InstructionTunningWithCVS/data/instruction_tuning_dataset/moral_tuning_dataset_sampled.jsonl 0.4 \
   allenai/tulu-3-sft-mixture 0.6 \
