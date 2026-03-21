@@ -49,6 +49,7 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --exp_name olmo7B_0_10_rd \
   --model_name_or_path allenai/Olmo-3-1025-7B \
   --use_slow_tokenizer \
+  --chat_template olmo123 \
   --add_bos True \
   --dataset_mixer_list allenai/tulu-3-sft-mixture 1.0 \
   --dataset_mixer_list_splits train \

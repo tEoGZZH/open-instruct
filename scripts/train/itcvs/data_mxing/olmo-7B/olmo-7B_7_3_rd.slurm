@@ -46,6 +46,7 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --exp_name olmo7B_7_3_rd \
   --model_name_or_path allenai/Olmo-3-1025-7B \
   --use_slow_tokenizer \
+  --chat_template olmo123 \
   --add_bos True \
   --dataset_mixer_list \
   /home/zs473554/projects/InstructionTunningWithCVS/data/instruction_tuning_dataset/moral_tuning_dataset_sampled.jsonl 0.7 \
