@@ -4,7 +4,7 @@
 echo "Submitting all SLURM jobs..."
 echo ""
 
-for slurm_file in olmo-7B_0_10_rd.slurm olmo-7B_7_3_rd.slurm olmo-7B_5_5_rd.slurm olmo-7B_3_7_rd.slurm olmo-7B_10_0_rd.slurm; do
+for slurm_file in qwen3-8B_0_10_rd.slurm qwen3-8B_7_3_rd.slurm qwen3-8B_5_5_rd.slurm qwen3-8B_3_7_rd.slurm qwen3-8B_10_0_rd.slurm; do
     if [ -f "$slurm_file" ]; then
         echo "Submitting: $slurm_file"
         sbatch "$slurm_file"
