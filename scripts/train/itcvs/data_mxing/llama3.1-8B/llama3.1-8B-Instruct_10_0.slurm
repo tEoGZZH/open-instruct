@@ -1,6 +1,6 @@
 #!/usr/bin/zsh
 #SBATCH -J llama3instruct_mixing_10_0
-#SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/llama3instruc_mixing_10_0%j.txt
+#SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/llama3instruct_mixing_10_0_%j.txt
 #SBATCH -t 07:00:00
 #SBATCH -c 16
 #SBATCH -p c23g
@@ -40,7 +40,7 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --num_machines 1 \
   --dynamo_backend no \
   open_instruct/finetune.py \
-  --exp_name llama3base_10_0_rd \
+  --exp_name llama3instruct_10_0_rd \
   --model_name_or_path meta-llama/Llama-3.1-8B-Instruct \
   --use_slow_tokenizer \
   --chat_template tulu \
