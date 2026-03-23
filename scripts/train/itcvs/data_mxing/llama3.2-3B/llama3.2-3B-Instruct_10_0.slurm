@@ -1,7 +1,7 @@
 #!/usr/bin/zsh
-#SBATCH -J llama3base_mixing_2_8
-#SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/llama3base_mixing_2_8_%j.txt
-#SBATCH -t 06:00:00
+#SBATCH -J llama3instruct3B_mixing_10_0
+#SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/llama3instruct3B_mixing_10_0_%j.txt
+#SBATCH -t 07:00:00
 #SBATCH -c 16
 #SBATCH -p c23g
 #SBATCH --gres=gpu:1
@@ -13,12 +13,6 @@ cd /home/zs473554/projects/open-instruct
 source /home/zs473554/projects/open-instruct/.venv/bin/activate
 export XDG_CACHE_HOME=/work/zs473554/.cache
 source /home/zs473554/jobscripts/hf_token.env
-
-export HF_HOME=/hpcwork/zs473554/huggingface
-export HF_DATASETS_CACHE=$HF_HOME/datasets
-export HUGGINGFACE_HUB_CACHE=$HF_HOME/hub
-export HF_HUB_ETAG_TIMEOUT=60
-export HF_HUB_DOWNLOAD_TIMEOUT=60
 
 # Module load and cuda home
 module purge
@@ -35,7 +29,7 @@ export PYTHONPATH=$(pwd)
 
 srun --chdir=/home/zs473554/projects/open-instruct \
   bash -lc '
-  export WANDB_PROJECT=OpenInstruct-Llama3base
+  export WANDB_PROJECT=OpenInstruct-Llama3.2-3B-Instruct
   export WANDB_ENTITY=zhaohui-zeng-cn-rwth-aachen-university
   export WANDB_MODE=offline
   export WANDB_NAME="${WANDB_PROJECT}_$(date +%Y%m%d%H%M%S)"
@@ -46,15 +40,13 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --num_machines 1 \
   --dynamo_backend no \
   open_instruct/finetune.py \
-  --exp_name llama3base_2_8_rd \
-  --model_name_or_path meta-llama/Llama-3.1-8B \
+  --exp_name llama3instruct3B_10_0_rd \
+  --model_name_or_path meta-llama/Llama-3.2-3B-Instruct \
   --use_slow_tokenizer \
   --chat_template tulu \
-  --dataset_mixer_list \
-  /home/zs473554/projects/InstructionTunningWithCVS/data/instruction_tuning_dataset/moral_tuning_dataset_sampled.jsonl 0.2 \
-  allenai/tulu-3-sft-mixture 0.8 \
+  --dataset_mixer_list /home/zs473554/projects/InstructionTunningWithCVS/data/instruction_tuning_dataset/moral_tuning_dataset_sampled.jsonl 1.0 \
   --dataset_mixer_list_splits train \
-  --output_dir /hpcwork/zs473554/checkpoints/open-instruct/llama3base/mixing/two_eight/ \
+  --output_dir /hpcwork/zs473554/checkpoints/open-instruct/llama3_3B_instruct/mixing/ten_zero/ \
   --do_not_randomize_output_dir \
   --add_seed_and_date_to_exp_name False \
   --max_seq_length 2048 \
@@ -73,7 +65,7 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --seed 8 \
   --with_tracking True \
   --report_to wandb \
-  --wandb_project_name OpenInstruct-Llama3.1-8B \
+  --wandb_project_name OpenInstruct-Llama3.2-3B-Instruct \
   --push_to_hub False \
   --try_launch_beaker_eval_jobs False \
   --try_auto_save_to_beaker False \

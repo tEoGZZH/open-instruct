@@ -1,6 +1,6 @@
 #!/usr/bin/zsh
-#SBATCH -J llama3base_mixing_3_7
-#SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/llama3base_mixing_3_7_%j.txt
+#SBATCH -J llama33B_mixing_0_10
+#SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/llama33B_mixing_0_10_%j.txt
 #SBATCH -t 06:00:00
 #SBATCH -c 16
 #SBATCH -p c23g
@@ -46,15 +46,13 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --num_machines 1 \
   --dynamo_backend no \
   open_instruct/finetune.py \
-  --exp_name llama3base_3_7_rd \
-  --model_name_or_path meta-llama/Llama-3.1-8B \
+  --exp_name llama33B_0_10_rd \
+  --model_name_or_path meta-llama/Llama-3.2-3B \
   --use_slow_tokenizer \
   --chat_template tulu \
-  --dataset_mixer_list \
-  /home/zs473554/projects/InstructionTunningWithCVS/data/instruction_tuning_dataset/moral_tuning_dataset_sampled.jsonl 0.3 \
-  allenai/tulu-3-sft-mixture 0.7 \
+  --dataset_mixer_list allenai/tulu-3-sft-mixture 1.0 \
   --dataset_mixer_list_splits train \
-  --output_dir /hpcwork/zs473554/checkpoints/open-instruct/llama3base/mixing/three_seven/ \
+  --output_dir /hpcwork/zs473554/checkpoints/open-instruct/llama3_3B/mixing/zero_ten/ \
   --do_not_randomize_output_dir \
   --add_seed_and_date_to_exp_name False \
   --max_seq_length 2048 \
@@ -73,10 +71,11 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --seed 8 \
   --with_tracking True \
   --report_to wandb \
-  --wandb_project_name OpenInstruct-Llama3.1-8B \
+  --wandb_project_name OpenInstruct-Llama3.2-3B \
   --push_to_hub False \
   --try_launch_beaker_eval_jobs False \
   --try_auto_save_to_beaker False \
+  --dataset_cache_mode local \
   --dataset_local_cache_dir /work/zs473554/open-instruct-cache'
   
 

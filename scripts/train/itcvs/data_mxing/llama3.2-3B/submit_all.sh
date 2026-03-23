@@ -4,7 +4,7 @@
 echo "Submitting all SLURM jobs..."
 echo ""
 
-for slurm_file in llama3.1-8B_0_10_rd.slurm llama3.1-8B_1_9_rd.slurm llama3.1-8B_2_8_rd.slurm llama3.1-8B_3_7_rd.slurm llama3.1-8B_4_6_rd.slurm llama3.1-8B_5_5_rd.slurm llama3.1-8B_6_4_rd.slurm llama3.1-8B_7_3_rd.slurm llama3.1-8B_8_2_rd.slurm llama3.1-8B_9_1_rd.slurm llama3.1-8B_10_0_rd.slurm; do
+for slurm_file in llama3.2-3B_0_10_rd.slurm llama3.2-3B_1_9_rd.slurm llama3.2-3B_2_8_rd.slurm llama3.2-3B_3_7_rd.slurm llama3.2-3B_4_6_rd.slurm llama3.2-3B_5_5_rd.slurm llama3.2-3B_6_4_rd.slurm llama3.2-3B_7_3_rd.slurm llama3.2-3B_8_2_rd.slurm llama3.2-3B_9_1_rd.slurm llama3.2-3B_10_0_rd.slurm; do
     if [ -f "$slurm_file" ]; then
         echo "Submitting: $slurm_file"
         sbatch "$slurm_file"
