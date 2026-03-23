@@ -46,7 +46,7 @@ from transformers import AutoConfig, AutoModelForCausalLM, BitsAndBytesConfig, D
 from transformers.training_args import _convert_str_dict
 
 from open_instruct import logger_utils, utils
-from open_instruct.dataset_transformation import (
+from open_instruct.dataset_transformation_test import (
     INPUT_IDS_KEY,
     TOKENIZED_SFT_DATASET_KEYS,
     TokenizerConfig,
@@ -530,6 +530,29 @@ def main(args: FlatArguments, tc: TokenizerConfig):
 
 
     if accelerator.is_main_process:
+        ex = train_dataset[0]
+        ids = ex["input_ids"]
+        labels = ex["labels"]
+
+        print("\n========== DEBUG DATASET[0] BEFORE DATALOADER ==========\n")
+        print("len(tokenizer):", len(tokenizer))
+        print("added_vocab =", tokenizer.get_added_vocab())
+        print("tokenizer name:", getattr(tokenizer, "name_or_path", None))
+        print("pad/eos/bos:", tokenizer.pad_token_id, tokenizer.eos_token_id, tokenizer.bos_token_id)
+        print("chat_template_name:", tc.chat_template_name)
+        print("chat_template head =", tokenizer.chat_template[:200] if tokenizer.chat_template else None)
+        print("input_ids min/max:", ids.min().item(), ids.max().item())
+        print("labels min/max:", labels.min().item(), labels.max().item())
+        print("input_ids[:100]:", ids[:100].tolist())
+        print("labels[:100]:", labels[:100].tolist())
+
+        try:
+            print("\nDECODED DATASET[0]:\n")
+            print(tokenizer.decode(ids[:1000]))
+        except Exception as e:
+            print("decode failed:", e)
+
+        print("\n========== END DEBUG DATASET[0] ==========\n")
         visualize_token(train_dataset[0][INPUT_IDS_KEY], tokenizer)
 
     if args.cache_dataset_only:
@@ -806,7 +829,61 @@ def main(args: FlatArguments, tc: TokenizerConfig):
             skipped_batches = True
         else:
             active_dataloader = train_dataloader
-        for batch in active_dataloader:
+        # for batch in active_dataloader:
+        for step, batch in enumerate(active_dataloader):
+            if step == 0 and accelerator.is_main_process:
+                import sys
+
+                print("\n========== DEBUG FIRST BATCH ==========\n")
+
+                input_ids = batch["input_ids"]
+                labels = batch["labels"]
+
+                # 模型 vocab size
+                vocab_size = model.get_input_embeddings().weight.shape[0]
+
+                print("vocab_size:", vocab_size)
+                print("input_ids shape:", input_ids.shape)
+                print("labels shape:", labels.shape)
+
+                print("input_ids min/max:", input_ids.min().item(), input_ids.max().item())
+                print("labels min/max:", labels.min().item(), labels.max().item())
+
+                # 找非法 token
+                bad_input = (input_ids < 0) | (input_ids >= vocab_size)
+                bad_label = ~((labels == -100) | ((labels >= 0) & (labels < vocab_size)))
+
+                print("bad input_ids exists:", bad_input.any().item())
+                print("bad labels exists:", bad_label.any().item())
+
+                if bad_input.any():
+                    idx = bad_input.nonzero()[0]
+                    print("BAD input_ids value:", input_ids[idx[0], idx[1]].item())
+                    print("BAD position:", idx.tolist())
+
+                if bad_label.any():
+                    idx = bad_label.nonzero()[0]
+                    print("BAD label value:", labels[idx[0], idx[1]].item())
+                    print("BAD position:", idx.tolist())
+
+                # 打印前100个 token（最有用）
+                print("\ninput_ids[0][:100]:")
+                print(input_ids[0][:100].tolist())
+
+                print("\nlabels[0][:100]:")
+                print(labels[0][:100].tolist())
+
+                # decode 看字符串（非常关键）
+                try:
+                    decoded = tokenizer.decode(input_ids[0])
+                    print("\nDECODED TEXT:\n")
+                    print(decoded[:1000])
+                except Exception as e:
+                    print("decode failed:", e)
+
+                print("\n========== END DEBUG ==========\n")
+
+                sys.exit(0)
             pred_tokens_in_batch = (batch["labels"] != -100).sum()
             if "attention_mask" in batch:
                 tokens_in_batch = batch["attention_mask"].sum()

@@ -124,6 +124,7 @@ COLORS = ["on red", "on green", "on blue", "on yellow", "on magenta"]
 
 
 def visualize_token(tokens: list[int], tokenizer: PreTrainedTokenizer):
+    
     i = 0
     console = Console()
     rich_text = Text()
@@ -1059,6 +1060,8 @@ def sft_filter_v1(
 
 def sft_tulu_tokenize_and_truncate_v1(row: dict[str, Any], tokenizer: PreTrainedTokenizer, max_seq_length: int):
     """taken directly from https://github.com/allenai/open-instruct/blob/ba11286e5b9eb00d4ce5b40ef4cac1389888416a/open_instruct/finetune.py#L385"""
+    # print("DEBUG tokenize fn called from", __file__)
+    # print("DEBUG first message roles:", [m["role"] for m in row["messages"][:3]])
     messages = row["messages"]
     if len(messages) == 0:
         raise ValueError("messages field is empty.")
@@ -1071,6 +1074,11 @@ def sft_tulu_tokenize_and_truncate_v1(row: dict[str, Any], tokenizer: PreTrained
         max_length=max_seq_length,
         add_generation_prompt=False,
     )
+    if input_ids_result.max().item() >= tokenizer.vocab_size:
+        print("⚠️ BAD TOKEN SAMPLE", flush=True)
+        print("max id:", input_ids_result.max().item(), flush=True)
+        print("vocab size:", tokenizer.vocab_size, flush=True)
+        print("messages:", messages, flush=True)
     assert isinstance(input_ids_result, torch.Tensor)
     input_ids = input_ids_result
     labels = input_ids.clone()
@@ -1090,6 +1098,8 @@ def sft_tulu_tokenize_and_truncate_v1(row: dict[str, Any], tokenizer: PreTrained
                     max_length=max_seq_length,
                     add_generation_prompt=False,
                 ).shape[1]
+                # print("DEBUG freshly tokenized max id:", input_ids_result.max().item())
+                # print("DEBUG len(tokenizer):", len(tokenizer))
             # next, we calculate the end index of this non-assistant message
             if message_idx < len(messages) - 1 and messages[message_idx + 1]["role"] == "assistant":
                 # for intermediate messages that follow with an assistant message, we need to
@@ -1104,6 +1114,8 @@ def sft_tulu_tokenize_and_truncate_v1(row: dict[str, Any], tokenizer: PreTrained
                     max_length=max_seq_length,
                     add_generation_prompt=True,
                 ).shape[1]
+                # print("DEBUG freshly tokenized max id:", input_ids_result.max().item())
+                # print("DEBUG len(tokenizer):", len(tokenizer))
             else:
                 # for the last message or the message that doesn't follow with an assistant message,
                 # we don't need to add the assistant generation prefix
@@ -1116,10 +1128,13 @@ def sft_tulu_tokenize_and_truncate_v1(row: dict[str, Any], tokenizer: PreTrained
                     max_length=max_seq_length,
                     add_generation_prompt=False,
                 ).shape[1]
+                # print("DEBUG freshly tokenized max id:", input_ids_result.max().item())
+                # print("DEBUG len(tokenizer):", len(tokenizer))
             # set the label to -100 for the non-assistant part
             labels[:, message_start_idx:message_end_idx] = -100
             if max_seq_length and message_end_idx >= max_seq_length:
                 break
+
     attention_mask = torch.ones_like(input_ids)
     row[INPUT_IDS_KEY] = input_ids.flatten()
     row[LABELS_KEY] = labels.flatten()
@@ -1630,7 +1645,39 @@ class DatasetConfig:
         return self.dataset.select(indices)
 
 
+def debug_ds(ds, name):
+    print(f"\n===== {name} =====")
+    print("fingerprint =", ds._fingerprint)
+    print("len =", len(ds))
+    print("has_indices =", ds._indices is not None)
+    print("data_rows =", ds._data.num_rows)
+    print("indices_rows =", None if ds._indices is None else ds._indices.num_rows)
+    print("column_names =", ds.column_names)
+    print("features =", ds.features)
+    print("cache_files =", ds.cache_files)
+    print("num_columns(_data) =", ds._data.num_columns)
+    print("schema(_data) =", ds._data.schema)
+    print("len_vs_data_rows =", len(ds), ds._data.num_rows)
+
+    if ds._indices is not None:
+        try:
+            print("indices[:10] =", ds._indices.column(0).to_pylist()[:10])
+        except Exception as e:
+            print("indices[:10] inspect failed:", repr(e))
+
+    if len(ds) == 0:
+        print("dataset is empty")
+        return
+
+    try:
+        print("first_row =", ds[0])
+        print("last_row =", ds[len(ds) - 1])
+    except Exception as e:
+        print("row access failed:", repr(e))
+        raise
+    
 def get_dataset_v1(dc: DatasetConfig, tc: TokenizerConfig):
+    print("DEBUG get_dataset_v1 from =", __file__)
     assert len(dc.transform_fn) == len(dc.transform_fn_args), (
         f"transform_fn and transform_fn_args must have the same length: {dc.transform_fn=} != {dc.transform_fn_args=}"
     )
@@ -1639,6 +1686,18 @@ def get_dataset_v1(dc: DatasetConfig, tc: TokenizerConfig):
 
     tokenizer = tc.tokenizer
     dataset = dc.dataset
+    # print("\n===== DEBUG RAW dc.dataset =====")
+    # print("source file:", __file__)
+    # print("dataset name:", dc.dataset_name)
+    # print("column_names:", dataset.column_names)
+    # print("len(dataset):", len(dataset))
+    # print("first row keys:", dataset[0].keys())
+    # if "messages" in dataset.column_names:
+    #     print("first row messages:", dataset[0]["messages"][:2])
+    # if "input_ids" in dataset.column_names:
+    #     print("WARNING: raw dataset already has input_ids")
+    #     print("raw input_ids[:20]:", dataset[0]["input_ids"][:20])
+    # print("===== END DEBUG RAW =====\n")
 
     # Add dataset source field to track origin after shuffling
     dataset = dataset.map(
@@ -1663,7 +1722,12 @@ def get_dataset_v1(dc: DatasetConfig, tc: TokenizerConfig):
         # Always preserve dataset_source if it exists
         target_columns = _preserve_column(DATASET_ORIGIN_KEY, dataset, target_columns)
         target_columns = _preserve_column(TOOLS_COLUMN_KEY, dataset, target_columns)
-
+        # print(f"\n---- transform start: {fn_name} ({fn_type}) ----")
+        # print("fn_args =", fn_args)
+        # print("target_columns =", target_columns)
+        # print("remove_columns =", [col for col in dataset.column_names if col not in target_columns])
+        # print("new_fingerprint =", new_fingerprint)
+        debug_ds(dataset, f"before {fn_name} ({fn_type})")
         if fn_type == "map":
             dataset = dataset.map(
                 fn,
@@ -1671,20 +1735,23 @@ def get_dataset_v1(dc: DatasetConfig, tc: TokenizerConfig):
                 remove_columns=[col for col in dataset.column_names if col not in target_columns],
                 num_proc=get_num_proc(len(dataset), num_proc, APPLY_CHAT_TEMPLATE_EXAMPLE_PER_SECOND_PER_CPU),
                 new_fingerprint=new_fingerprint,
+                load_from_cache_file=False, 
             )
+            # debug_ds(dataset, f"after {fn_name} ({fn_type}), map")
         elif fn_type == "filter":
             dataset = dataset.filter(
                 fn,
                 fn_kwargs=fn_kwargs,
                 num_proc=get_num_proc(len(dataset), num_proc, FILTER_EXAMPLE_PER_SECOND_PER_CPU),
                 new_fingerprint=new_fingerprint,
+                load_from_cache_file=False,  
             )
+            # debug_ds(dataset, f"after {fn_name} ({fn_type}), filter")
         # NOTE: elif we can implement packing here to create a packed SFT dataset. Low priority for now.
         else:
             raise ValueError(f"Unknown transform function type: {fn_type}")
-
-    if len(dataset) == 0:
-        raise ValueError("No examples left after transformation")
+        
+        # debug_ds(dataset, f"after {fn_name} ({fn_type})")
     return dataset
 
 
@@ -1761,6 +1828,7 @@ class DatasetTransformationCache:
 
         # Combine datasets
         combined_dataset = concatenate_datasets(transformed_datasets)
+        combined_dataset = combined_dataset.flatten_indices()
         combined_dataset = combined_dataset.add_column("index", range(len(combined_dataset)))
         if dataset_skip_cache:
             return combined_dataset
@@ -1908,6 +1976,7 @@ class LocalDatasetTransformationCache:
 
         # Combine datasets
         combined_dataset = concatenate_datasets(transformed_datasets)
+        combined_dataset = combined_dataset.flatten_indices()
         combined_dataset = combined_dataset.add_column("index", range(len(combined_dataset)))
 
         # Prepare return statistics
