@@ -806,7 +806,61 @@ def main(args: FlatArguments, tc: TokenizerConfig):
             skipped_batches = True
         else:
             active_dataloader = train_dataloader
-        for batch in active_dataloader:
+        # for batch in active_dataloader:
+        for step, batch in enumerate(active_dataloader):
+            if step == 0 and accelerator.is_main_process:
+                import sys
+
+                print("\n========== DEBUG FIRST BATCH ==========\n")
+
+                input_ids = batch["input_ids"]
+                labels = batch["labels"]
+
+                # 模型 vocab size
+                vocab_size = model.get_input_embeddings().weight.shape[0]
+
+                print("vocab_size:", vocab_size)
+                print("input_ids shape:", input_ids.shape)
+                print("labels shape:", labels.shape)
+
+                print("input_ids min/max:", input_ids.min().item(), input_ids.max().item())
+                print("labels min/max:", labels.min().item(), labels.max().item())
+
+                # 找非法 token
+                bad_input = (input_ids < 0) | (input_ids >= vocab_size)
+                bad_label = ~((labels == -100) | ((labels >= 0) & (labels < vocab_size)))
+
+                print("bad input_ids exists:", bad_input.any().item())
+                print("bad labels exists:", bad_label.any().item())
+
+                if bad_input.any():
+                    idx = bad_input.nonzero()[0]
+                    print("BAD input_ids value:", input_ids[idx[0], idx[1]].item())
+                    print("BAD position:", idx.tolist())
+
+                if bad_label.any():
+                    idx = bad_label.nonzero()[0]
+                    print("BAD label value:", labels[idx[0], idx[1]].item())
+                    print("BAD position:", idx.tolist())
+
+                # 打印前100个 token（最有用）
+                print("\ninput_ids[0][:100]:")
+                print(input_ids[0][:100].tolist())
+
+                print("\nlabels[0][:100]:")
+                print(labels[0][:100].tolist())
+
+                # decode 看字符串（非常关键）
+                try:
+                    decoded = tokenizer.decode(input_ids[0])
+                    print("\nDECODED TEXT:\n")
+                    print(decoded[:1000])
+                except Exception as e:
+                    print("decode failed:", e)
+
+                print("\n========== END DEBUG ==========\n")
+
+                sys.exit(0)
             pred_tokens_in_batch = (batch["labels"] != -100).sum()
             if "attention_mask" in batch:
                 tokens_in_batch = batch["attention_mask"].sum()
