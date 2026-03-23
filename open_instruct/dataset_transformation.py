@@ -1630,6 +1630,37 @@ class DatasetConfig:
         return self.dataset.select(indices)
 
 
+def debug_ds(ds, name):
+    print(f"\n===== {name} =====")
+    print("fingerprint =", ds._fingerprint)
+    print("len =", len(ds))
+    print("has_indices =", ds._indices is not None)
+    print("data_rows =", ds._data.num_rows)
+    print("indices_rows =", None if ds._indices is None else ds._indices.num_rows)
+    print("column_names =", ds.column_names)
+    print("features =", ds.features)
+    print("cache_files =", ds.cache_files)
+    print("num_columns(_data) =", ds._data.num_columns)
+    print("schema(_data) =", ds._data.schema)
+    print("len_vs_data_rows =", len(ds), ds._data.num_rows)
+
+    if ds._indices is not None:
+        try:
+            print("indices[:10] =", ds._indices.column(0).to_pylist()[:10])
+        except Exception as e:
+            print("indices[:10] inspect failed:", repr(e))
+
+    if len(ds) == 0:
+        print("dataset is empty")
+        return
+
+    try:
+        print("first_row =", ds[0])
+        print("last_row =", ds[len(ds) - 1])
+    except Exception as e:
+        print("row access failed:", repr(e))
+        raise
+    
 def get_dataset_v1(dc: DatasetConfig, tc: TokenizerConfig):
     assert len(dc.transform_fn) == len(dc.transform_fn_args), (
         f"transform_fn and transform_fn_args must have the same length: {dc.transform_fn=} != {dc.transform_fn_args=}"
@@ -1663,7 +1694,12 @@ def get_dataset_v1(dc: DatasetConfig, tc: TokenizerConfig):
         # Always preserve dataset_source if it exists
         target_columns = _preserve_column(DATASET_ORIGIN_KEY, dataset, target_columns)
         target_columns = _preserve_column(TOOLS_COLUMN_KEY, dataset, target_columns)
-
+        print(f"\n---- transform start: {fn_name} ({fn_type}) ----")
+        print("fn_args =", fn_args)
+        print("target_columns =", target_columns)
+        print("remove_columns =", [col for col in dataset.column_names if col not in target_columns])
+        print("new_fingerprint =", new_fingerprint)
+        debug_ds(dataset, f"before {fn_name} ({fn_type})")
         if fn_type == "map":
             dataset = dataset.map(
                 fn,
@@ -1681,17 +1717,11 @@ def get_dataset_v1(dc: DatasetConfig, tc: TokenizerConfig):
                 new_fingerprint=new_fingerprint,
                 load_from_cache_file=False,  
             )
-
-            print("dataset._fingerprint =", dataset._fingerprint)
-            print("len(dataset) =", len(dataset))
-            print("has_indices =", dataset._indices is not None)
-            print("data_rows =", dataset._data.num_rows)
         # NOTE: elif we can implement packing here to create a packed SFT dataset. Low priority for now.
         else:
             raise ValueError(f"Unknown transform function type: {fn_type}")
-
-    if len(dataset) == 0:
-        raise ValueError("No examples left after transformation")
+        
+        debug_ds(dataset, f"after {fn_name} ({fn_type})")
     return dataset
 
 
