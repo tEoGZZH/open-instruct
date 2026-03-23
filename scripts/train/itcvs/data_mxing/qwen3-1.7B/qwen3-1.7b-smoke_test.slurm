@@ -1,7 +1,7 @@
 #!/usr/bin/zsh
 #SBATCH -J qwen3_1.7B_smoke_test
 #SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/qwen3_1.7B_smoke_test_%j.txt
-#SBATCH -t 00:30:00
+#SBATCH -t 08:00:00
 #SBATCH -c 16
 #SBATCH -p c23g
 #SBATCH --gres=gpu:1
