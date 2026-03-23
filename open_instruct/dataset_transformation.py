@@ -1694,12 +1694,12 @@ def get_dataset_v1(dc: DatasetConfig, tc: TokenizerConfig):
         # Always preserve dataset_source if it exists
         target_columns = _preserve_column(DATASET_ORIGIN_KEY, dataset, target_columns)
         target_columns = _preserve_column(TOOLS_COLUMN_KEY, dataset, target_columns)
-        print(f"\n---- transform start: {fn_name} ({fn_type}) ----")
-        print("fn_args =", fn_args)
-        print("target_columns =", target_columns)
-        print("remove_columns =", [col for col in dataset.column_names if col not in target_columns])
-        print("new_fingerprint =", new_fingerprint)
-        debug_ds(dataset, f"before {fn_name} ({fn_type})")
+        # print(f"\n---- transform start: {fn_name} ({fn_type}) ----")
+        # print("fn_args =", fn_args)
+        # print("target_columns =", target_columns)
+        # print("remove_columns =", [col for col in dataset.column_names if col not in target_columns])
+        # print("new_fingerprint =", new_fingerprint)
+        # debug_ds(dataset, f"before {fn_name} ({fn_type})")
         if fn_type == "map":
             dataset = dataset.map(
                 fn,
@@ -1721,7 +1721,7 @@ def get_dataset_v1(dc: DatasetConfig, tc: TokenizerConfig):
         else:
             raise ValueError(f"Unknown transform function type: {fn_type}")
         
-        debug_ds(dataset, f"after {fn_name} ({fn_type})")
+        # debug_ds(dataset, f"after {fn_name} ({fn_type})")
     return dataset
 
 
