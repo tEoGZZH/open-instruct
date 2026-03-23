@@ -1065,10 +1065,11 @@ def sft_tulu_tokenize_and_truncate_v1(row: dict[str, Any], tokenizer: PreTrained
     messages = row["messages"]
     if len(messages) == 0:
         raise ValueError("messages field is empty.")
+    msg = messages[0]["content"]
     print("DEBUG before apply chat template, messages:", messages)
-    print("FULL ids max =", input_ids_result.max().item())
-    print("len(tokenizer) =", len(tokenizer))
-    print("decoded full =", tokenizer.decode(input_ids_result[0][:300]))
+    print("PRINT:", msg[:300])
+    print("REPR :", repr(msg[:300]))
+    print("ENC UTF8 BYTES:", msg[:80].encode("utf-8", errors="replace"))
     assert isinstance(input_ids_result, torch.Tensor)
     input_ids_result = tokenizer.apply_chat_template(
         conversation=messages,
