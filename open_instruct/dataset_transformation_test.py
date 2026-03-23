@@ -1074,9 +1074,10 @@ def sft_tulu_tokenize_and_truncate_v1(row: dict[str, Any], tokenizer: PreTrained
         max_length=max_seq_length,
         add_generation_prompt=False,
     )
-    if input_ids_result.max().item() >= tokenizer.vocab_size:
+    if input_ids_result.max().item() >= len(tokenizer):
         print("⚠️ BAD TOKEN SAMPLE", flush=True)
         print("max id:", input_ids_result.max().item(), flush=True)
+        print("tokenizer length:", len(tokenizer), flush=True)
         print("vocab size:", tokenizer.vocab_size, flush=True)
         print("messages:", messages, flush=True)
     assert isinstance(input_ids_result, torch.Tensor)
@@ -1677,7 +1678,7 @@ def debug_ds(ds, name):
         raise
     
 def get_dataset_v1(dc: DatasetConfig, tc: TokenizerConfig):
-    print("DEBUG get_dataset_v1 from =", __file__)
+    # print("DEBUG get_dataset_v1 from =", __file__)
     assert len(dc.transform_fn) == len(dc.transform_fn_args), (
         f"transform_fn and transform_fn_args must have the same length: {dc.transform_fn=} != {dc.transform_fn_args=}"
     )
@@ -1727,7 +1728,7 @@ def get_dataset_v1(dc: DatasetConfig, tc: TokenizerConfig):
         # print("target_columns =", target_columns)
         # print("remove_columns =", [col for col in dataset.column_names if col not in target_columns])
         # print("new_fingerprint =", new_fingerprint)
-        debug_ds(dataset, f"before {fn_name} ({fn_type})")
+        # debug_ds(dataset, f"before {fn_name} ({fn_type})")
         if fn_type == "map":
             dataset = dataset.map(
                 fn,

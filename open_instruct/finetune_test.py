@@ -534,25 +534,25 @@ def main(args: FlatArguments, tc: TokenizerConfig):
         ids = ex["input_ids"]
         labels = ex["labels"]
 
-        print("\n========== DEBUG DATASET[0] BEFORE DATALOADER ==========\n")
-        print("len(tokenizer):", len(tokenizer))
-        print("added_vocab =", tokenizer.get_added_vocab())
-        print("tokenizer name:", getattr(tokenizer, "name_or_path", None))
-        print("pad/eos/bos:", tokenizer.pad_token_id, tokenizer.eos_token_id, tokenizer.bos_token_id)
-        print("chat_template_name:", tc.chat_template_name)
-        print("chat_template head =", tokenizer.chat_template[:200] if tokenizer.chat_template else None)
-        print("input_ids min/max:", ids.min().item(), ids.max().item())
-        print("labels min/max:", labels.min().item(), labels.max().item())
-        print("input_ids[:100]:", ids[:100].tolist())
-        print("labels[:100]:", labels[:100].tolist())
+        # print("\n========== DEBUG DATASET[0] BEFORE DATALOADER ==========\n")
+        # print("len(tokenizer):", len(tokenizer))
+        # print("added_vocab =", tokenizer.get_added_vocab())
+        # print("tokenizer name:", getattr(tokenizer, "name_or_path", None))
+        # print("pad/eos/bos:", tokenizer.pad_token_id, tokenizer.eos_token_id, tokenizer.bos_token_id)
+        # print("chat_template_name:", tc.chat_template_name)
+        # print("chat_template head =", tokenizer.chat_template[:200] if tokenizer.chat_template else None)
+        # print("input_ids min/max:", ids.min().item(), ids.max().item())
+        # print("labels min/max:", labels.min().item(), labels.max().item())
+        # print("input_ids[:100]:", ids[:100].tolist())
+        # print("labels[:100]:", labels[:100].tolist())
 
-        try:
-            print("\nDECODED DATASET[0]:\n")
-            print(tokenizer.decode(ids[:1000]))
-        except Exception as e:
-            print("decode failed:", e)
+        # try:
+        #     print("\nDECODED DATASET[0]:\n")
+        #     print(tokenizer.decode(ids[:1000]))
+        # except Exception as e:
+        #     print("decode failed:", e)
 
-        print("\n========== END DEBUG DATASET[0] ==========\n")
+        # print("\n========== END DEBUG DATASET[0] ==========\n")
         visualize_token(train_dataset[0][INPUT_IDS_KEY], tokenizer)
 
     if args.cache_dataset_only:
