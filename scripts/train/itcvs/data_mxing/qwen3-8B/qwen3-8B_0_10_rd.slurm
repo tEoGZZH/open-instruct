@@ -1,7 +1,7 @@
 #!/usr/bin/zsh
 #SBATCH -J qwen3_8B_mixing_0_10
 #SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/qwen3_8B_mixing_0_10_%j.txt
-#SBATCH -t 06:00:00
+#SBATCH -t 20:00:00
 #SBATCH -c 16
 #SBATCH -p c23g
 #SBATCH --gres=gpu:1
@@ -50,7 +50,7 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --model_name_or_path Qwen/Qwen3-8B \
   --use_slow_tokenizer \
   --chat_template tulu \
-  --dataset_mixer_list allenai/tulu-3-sft-mixture 1.0 \
+  --dataset_mixer_list allenai/tulu-3-sft-mixture 0.4489 \
   --dataset_mixer_list_splits train \
   --output_dir /hpcwork/zs473554/checkpoints/open-instruct/qwen3-8B/mixing/zero_ten/ \
   --do_not_randomize_output_dir \
