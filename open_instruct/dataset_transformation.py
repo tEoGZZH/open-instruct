@@ -1681,6 +1681,11 @@ def get_dataset_v1(dc: DatasetConfig, tc: TokenizerConfig):
                 new_fingerprint=new_fingerprint,
                 load_from_cache_file=False,  
             )
+
+            print("dataset._fingerprint =", dataset._fingerprint)
+            print("len(dataset) =", len(dataset))
+            print("has_indices =", dataset._indices is not None)
+            print("data_rows =", dataset._data.num_rows)
         # NOTE: elif we can implement packing here to create a packed SFT dataset. Low priority for now.
         else:
             raise ValueError(f"Unknown transform function type: {fn_type}")

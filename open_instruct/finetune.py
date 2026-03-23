@@ -530,6 +530,10 @@ def main(args: FlatArguments, tc: TokenizerConfig):
 
 
     if accelerator.is_main_process:
+        print("len(tokenizer) =", len(tokenizer))
+        print("added_vocab =", tokenizer.get_added_vocab())
+        print("chat_template_name =", tc.chat_template_name)
+        print("chat_template head =", tokenizer.chat_template[:200] if tokenizer.chat_template else None)
         visualize_token(train_dataset[0][INPUT_IDS_KEY], tokenizer)
 
     if args.cache_dataset_only:
