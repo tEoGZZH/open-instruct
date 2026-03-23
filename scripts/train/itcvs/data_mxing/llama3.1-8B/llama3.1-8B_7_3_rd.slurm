@@ -74,7 +74,4 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --push_to_hub False \
   --try_launch_beaker_eval_jobs False \
   --try_auto_save_to_beaker False \
-  --dataset_cache_mode local \
-  --dataset_local_cache_dir /work/zs473554/open-instruct-cache'
-  
-
+  --dataset_skip_cache True'

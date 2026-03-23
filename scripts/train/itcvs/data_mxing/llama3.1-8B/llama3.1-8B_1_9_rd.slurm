@@ -52,7 +52,7 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --chat_template tulu \
   --dataset_mixer_list \
   /home/zs473554/projects/InstructionTunningWithCVS/data/instruction_tuning_dataset/moral_tuning_dataset_sampled.jsonl 0.1 \
-  allenai/tulu-3-sft-mixture0.4040 \
+  allenai/tulu-3-sft-mixture 0.4040 \
   --dataset_mixer_list_splits train \
   --output_dir /hpcwork/zs473554/checkpoints/open-instruct/llama3.1-8B-base/mixing/one_nine/ \
   --do_not_randomize_output_dir \
@@ -77,7 +77,4 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --push_to_hub False \
   --try_launch_beaker_eval_jobs False \
   --try_auto_save_to_beaker False \
-  --dataset_cache_mode local \
-  --dataset_local_cache_dir /work/zs473554/open-instruct-cache'
-  
-
+  --dataset_skip_cache True'
