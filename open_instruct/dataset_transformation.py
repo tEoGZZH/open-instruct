@@ -1065,6 +1065,11 @@ def sft_tulu_tokenize_and_truncate_v1(row: dict[str, Any], tokenizer: PreTrained
     messages = row["messages"]
     if len(messages) == 0:
         raise ValueError("messages field is empty.")
+    print("DEBUG before apply chat template, messages:", messages)
+    print("FULL ids max =", input_ids_result.max().item())
+    print("len(tokenizer) =", len(tokenizer))
+    print("decoded full =", tokenizer.decode(input_ids_result[0][:300]))
+    assert isinstance(input_ids_result, torch.Tensor)
     input_ids_result = tokenizer.apply_chat_template(
         conversation=messages,
         tokenize=True,
@@ -1074,6 +1079,10 @@ def sft_tulu_tokenize_and_truncate_v1(row: dict[str, Any], tokenizer: PreTrained
         max_length=max_seq_length,
         add_generation_prompt=False,
     )
+    print("DEBUG after apply chat template, input_ids_result shape:", input_ids_result.shape)
+    print("FULL ids max =", input_ids_result.max().item())
+    print("len(tokenizer) =", len(tokenizer))
+    print("decoded full =", tokenizer.decode(input_ids_result[0][:300]))
     assert isinstance(input_ids_result, torch.Tensor)
     input_ids = input_ids_result
     labels = input_ids.clone()
@@ -1728,8 +1737,7 @@ def get_dataset_v1(dc: DatasetConfig, tc: TokenizerConfig):
                 fn,
                 fn_kwargs=fn_kwargs,
                 remove_columns=[col for col in dataset.column_names if col not in target_columns],
-                num_proc=1,
-                # num_proc=get_num_proc(len(dataset), num_proc, APPLY_CHAT_TEMPLATE_EXAMPLE_PER_SECOND_PER_CPU),
+                num_proc=get_num_proc(len(dataset), num_proc, APPLY_CHAT_TEMPLATE_EXAMPLE_PER_SECOND_PER_CPU),
                 new_fingerprint=new_fingerprint,
                 load_from_cache_file=False, 
             )
@@ -1738,8 +1746,7 @@ def get_dataset_v1(dc: DatasetConfig, tc: TokenizerConfig):
             dataset = dataset.filter(
                 fn,
                 fn_kwargs=fn_kwargs,
-                num_proc=1,
-                # num_proc=get_num_proc(len(dataset), num_proc, FILTER_EXAMPLE_PER_SECOND_PER_CPU),
+                num_proc=get_num_proc(len(dataset), num_proc, FILTER_EXAMPLE_PER_SECOND_PER_CPU),
                 new_fingerprint=new_fingerprint,
                 load_from_cache_file=False,  
             )
