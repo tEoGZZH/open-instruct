@@ -1,7 +1,7 @@
 #!/usr/bin/zsh
-#SBATCH -J qwen3_4B_mixing_0_10
-#SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/qwen3_4B_mixing_0_10_%j.txt
-#SBATCH -t 06:00:00
+#SBATCH -J qwen3_1.7B_instruct_mixing_10_0
+#SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/qwen3_1.7B_instruct_mixing_10_0_%j.txt
+#SBATCH -t 07:00:00
 #SBATCH -c 16
 #SBATCH -p c23g
 #SBATCH --gres=gpu:1
@@ -13,12 +13,6 @@ cd /home/zs473554/projects/open-instruct
 source /home/zs473554/projects/open-instruct/.venv/bin/activate
 export XDG_CACHE_HOME=/work/zs473554/.cache
 source /home/zs473554/jobscripts/hf_token.env
-
-export HF_HOME=/hpcwork/zs473554/huggingface
-export HF_DATASETS_CACHE=$HF_HOME/datasets
-export HUGGINGFACE_HUB_CACHE=$HF_HOME/hub
-export HF_HUB_ETAG_TIMEOUT=60
-export HF_HUB_DOWNLOAD_TIMEOUT=60
 
 # Module load and cuda home
 module purge
@@ -35,7 +29,7 @@ export PYTHONPATH=$(pwd)
 
 srun --chdir=/home/zs473554/projects/open-instruct \
   bash -lc '
-  export WANDB_PROJECT=OpenInstruct-Qwen3-4B
+  export WANDB_PROJECT=OpenInstruct-Qwen3-1.7B-Instruct
   export WANDB_ENTITY=zhaohui-zeng-cn-rwth-aachen-university
   export WANDB_MODE=offline
   export WANDB_NAME="${WANDB_PROJECT}_$(date +%Y%m%d%H%M%S)"
@@ -46,13 +40,13 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --num_machines 1 \
   --dynamo_backend no \
   open_instruct/finetune.py \
-  --exp_name qwen3_4B_0_10_rd \
-  --model_name_or_path Qwen/Qwen3-4B \
+  --exp_name qwen3_1.7B_instruct_10_0_rd \
+  --model_name_or_path Qwen/Qwen3-1.7B-Instruct \
   --use_slow_tokenizer \
   --chat_template tulu \
-  --dataset_mixer_list allenai/tulu-3-sft-mixture 1.0 \
+  --dataset_mixer_list /home/zs473554/projects/InstructionTunningWithCVS/data/instruction_tuning_dataset/moral_tuning_dataset_sampled.jsonl 1.0 \
   --dataset_mixer_list_splits train \
-  --output_dir /hpcwork/zs473554/checkpoints/open-instruct/qwen3-4B/mixing/zero_ten/ \
+  --output_dir /hpcwork/zs473554/checkpoints/open-instruct/qwen3-1.7B-instruct/mixing/ten_zero/ \
   --do_not_randomize_output_dir \
   --add_seed_and_date_to_exp_name False \
   --max_seq_length 2048 \
@@ -71,7 +65,7 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --seed 8 \
   --with_tracking True \
   --report_to wandb \
-  --wandb_project_name OpenInstruct-Qwen3-4B \
+  --wandb_project_name OpenInstruct-Qwen3-1.7B-Instruct \
   --push_to_hub False \
   --try_launch_beaker_eval_jobs False \
   --try_auto_save_to_beaker False \

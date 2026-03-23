@@ -1,6 +1,6 @@
 #!/usr/bin/zsh
-#SBATCH -J qwen3_4B_mixing_3_7
-#SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/qwen3_4B_mixing_3_7_%j.txt
+#SBATCH -J qwen3_1.7B_mixing_4_6
+#SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/qwen3_1.7B_mixing_4_6_%j.txt
 #SBATCH -t 06:00:00
 #SBATCH -c 16
 #SBATCH -p c23g
@@ -35,7 +35,7 @@ export PYTHONPATH=$(pwd)
 
 srun --chdir=/home/zs473554/projects/open-instruct \
   bash -lc '
-  export WANDB_PROJECT=OpenInstruct-Qwen3-4B
+  export WANDB_PROJECT=OpenInstruct-Qwen3-1.7B
   export WANDB_ENTITY=zhaohui-zeng-cn-rwth-aachen-university
   export WANDB_MODE=offline
   export WANDB_NAME="${WANDB_PROJECT}_$(date +%Y%m%d%H%M%S)"
@@ -46,15 +46,15 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --num_machines 1 \
   --dynamo_backend no \
   open_instruct/finetune.py \
-  --exp_name qwen3_4B_3_7_rd \
-  --model_name_or_path Qwen/Qwen3-4B \
+  --exp_name qwen3_1.7B_4_6_rd \
+  --model_name_or_path Qwen/Qwen3-1.7B-Base\
   --use_slow_tokenizer \
   --chat_template tulu \
   --dataset_mixer_list \
-  /home/zs473554/projects/InstructionTunningWithCVS/data/instruction_tuning_dataset/moral_tuning_dataset_sampled.jsonl 0.3 \
-  allenai/tulu-3-sft-mixture 0.7 \
+  /home/zs473554/projects/InstructionTunningWithCVS/data/instruction_tuning_dataset/moral_tuning_dataset_sampled.jsonl 0.4 \
+  allenai/tulu-3-sft-mixture 0.2693 \
   --dataset_mixer_list_splits train \
-  --output_dir /hpcwork/zs473554/checkpoints/open-instruct/qwen3-4B/mixing/three_seven/ \
+  --output_dir /hpcwork/zs473554/checkpoints/open-instruct/qwen3-1.7B/mixing/four_six/ \
   --do_not_randomize_output_dir \
   --add_seed_and_date_to_exp_name False \
   --max_seq_length 2048 \
@@ -73,10 +73,11 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --seed 8 \
   --with_tracking True \
   --report_to wandb \
-  --wandb_project_name OpenInstruct-Qwen3-4B \
+  --wandb_project_name OpenInstruct-Qwen3-1.7B \
   --push_to_hub False \
   --try_launch_beaker_eval_jobs False \
   --try_auto_save_to_beaker False \
+  --dataset_cache_mode local \
   --dataset_local_cache_dir /work/zs473554/open-instruct-cache'
   
 
