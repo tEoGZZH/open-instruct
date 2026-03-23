@@ -124,6 +124,7 @@ COLORS = ["on red", "on green", "on blue", "on yellow", "on magenta"]
 
 
 def visualize_token(tokens: list[int], tokenizer: PreTrainedTokenizer):
+    
     i = 0
     console = Console()
     rich_text = Text()
@@ -1059,6 +1060,8 @@ def sft_filter_v1(
 
 def sft_tulu_tokenize_and_truncate_v1(row: dict[str, Any], tokenizer: PreTrainedTokenizer, max_seq_length: int):
     """taken directly from https://github.com/allenai/open-instruct/blob/ba11286e5b9eb00d4ce5b40ef4cac1389888416a/open_instruct/finetune.py#L385"""
+    print("DEBUG tokenize fn called from", __file__)
+    print("DEBUG first message roles:", [m["role"] for m in row["messages"][:3]])
     messages = row["messages"]
     if len(messages) == 0:
         raise ValueError("messages field is empty.")
@@ -1090,6 +1093,8 @@ def sft_tulu_tokenize_and_truncate_v1(row: dict[str, Any], tokenizer: PreTrained
                     max_length=max_seq_length,
                     add_generation_prompt=False,
                 ).shape[1]
+                print("DEBUG freshly tokenized max id:", input_ids_result.max().item())
+                print("DEBUG len(tokenizer):", len(tokenizer))
             # next, we calculate the end index of this non-assistant message
             if message_idx < len(messages) - 1 and messages[message_idx + 1]["role"] == "assistant":
                 # for intermediate messages that follow with an assistant message, we need to
@@ -1104,6 +1109,8 @@ def sft_tulu_tokenize_and_truncate_v1(row: dict[str, Any], tokenizer: PreTrained
                     max_length=max_seq_length,
                     add_generation_prompt=True,
                 ).shape[1]
+                print("DEBUG freshly tokenized max id:", input_ids_result.max().item())
+                print("DEBUG len(tokenizer):", len(tokenizer))
             else:
                 # for the last message or the message that doesn't follow with an assistant message,
                 # we don't need to add the assistant generation prefix
@@ -1116,10 +1123,13 @@ def sft_tulu_tokenize_and_truncate_v1(row: dict[str, Any], tokenizer: PreTrained
                     max_length=max_seq_length,
                     add_generation_prompt=False,
                 ).shape[1]
+                print("DEBUG freshly tokenized max id:", input_ids_result.max().item())
+                print("DEBUG len(tokenizer):", len(tokenizer))
             # set the label to -100 for the non-assistant part
             labels[:, message_start_idx:message_end_idx] = -100
             if max_seq_length and message_end_idx >= max_seq_length:
                 break
+
     attention_mask = torch.ones_like(input_ids)
     row[INPUT_IDS_KEY] = input_ids.flatten()
     row[LABELS_KEY] = labels.flatten()
@@ -1662,6 +1672,7 @@ def debug_ds(ds, name):
         raise
     
 def get_dataset_v1(dc: DatasetConfig, tc: TokenizerConfig):
+    print("DEBUG get_dataset_v1 from =", __file__)
     assert len(dc.transform_fn) == len(dc.transform_fn_args), (
         f"transform_fn and transform_fn_args must have the same length: {dc.transform_fn=} != {dc.transform_fn_args=}"
     )
@@ -1670,6 +1681,18 @@ def get_dataset_v1(dc: DatasetConfig, tc: TokenizerConfig):
 
     tokenizer = tc.tokenizer
     dataset = dc.dataset
+    print("\n===== DEBUG RAW dc.dataset =====")
+    print("source file:", __file__)
+    print("dataset name:", dc.dataset_name)
+    print("column_names:", dataset.column_names)
+    print("len(dataset):", len(dataset))
+    print("first row keys:", dataset[0].keys())
+    if "messages" in dataset.column_names:
+        print("first row messages:", dataset[0]["messages"][:2])
+    if "input_ids" in dataset.column_names:
+        print("WARNING: raw dataset already has input_ids")
+        print("raw input_ids[:20]:", dataset[0]["input_ids"][:20])
+    print("===== END DEBUG RAW =====\n")
 
     # Add dataset source field to track origin after shuffling
     dataset = dataset.map(
