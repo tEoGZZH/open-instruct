@@ -1728,7 +1728,8 @@ def get_dataset_v1(dc: DatasetConfig, tc: TokenizerConfig):
                 fn,
                 fn_kwargs=fn_kwargs,
                 remove_columns=[col for col in dataset.column_names if col not in target_columns],
-                num_proc=get_num_proc(len(dataset), num_proc, APPLY_CHAT_TEMPLATE_EXAMPLE_PER_SECOND_PER_CPU),
+                num_proc=1,
+                # num_proc=get_num_proc(len(dataset), num_proc, APPLY_CHAT_TEMPLATE_EXAMPLE_PER_SECOND_PER_CPU),
                 new_fingerprint=new_fingerprint,
                 load_from_cache_file=False, 
             )
@@ -1737,7 +1738,8 @@ def get_dataset_v1(dc: DatasetConfig, tc: TokenizerConfig):
             dataset = dataset.filter(
                 fn,
                 fn_kwargs=fn_kwargs,
-                num_proc=get_num_proc(len(dataset), num_proc, FILTER_EXAMPLE_PER_SECOND_PER_CPU),
+                num_proc=1,
+                # num_proc=get_num_proc(len(dataset), num_proc, FILTER_EXAMPLE_PER_SECOND_PER_CPU),
                 new_fingerprint=new_fingerprint,
                 load_from_cache_file=False,  
             )
