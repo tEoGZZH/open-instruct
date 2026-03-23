@@ -58,15 +58,15 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --do_not_randomize_output_dir \
   --add_seed_and_date_to_exp_name False \
   --max_seq_length 2048 \
-  --per_device_train_batch_size 1 \
+  --per_device_train_batch_size 4 \
   --gradient_accumulation_steps 16 \
   --learning_rate 5e-6 \
   --lr_scheduler_type linear \
   --warmup_ratio 0.03 \
   --weight_decay 0.0 \
-  --max_train_steps 10000 \
+  --max_train_steps 6588 \
   --checkpointing_steps 1000 \
-  --eval_steps 1000 \
+  --eval_steps 500 \
   --eval_ratio 0.001 \
   --keep_last_n_checkpoints 1 \
   --logging_steps 10 \

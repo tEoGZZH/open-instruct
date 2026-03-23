@@ -66,7 +66,7 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --weight_decay 0.0 \
   --max_train_steps 100 \
   --checkpointing_steps 100 \
-  --eval_steps 50 \
+  --eval_steps 500 \
   --eval_ratio 0.001 \
   --keep_last_n_checkpoints 1 \
   --logging_steps 10 \
