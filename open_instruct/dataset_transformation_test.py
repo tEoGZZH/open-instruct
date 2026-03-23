@@ -1074,12 +1074,12 @@ def sft_tulu_tokenize_and_truncate_v1(row: dict[str, Any], tokenizer: PreTrained
         max_length=max_seq_length,
         add_generation_prompt=False,
     )
-    if input_ids_result.max().item() >= len(tokenizer):
-        print("⚠️ BAD TOKEN SAMPLE", flush=True)
-        print("max id:", input_ids_result.max().item(), flush=True)
-        print("tokenizer length:", len(tokenizer), flush=True)
-        print("vocab size:", tokenizer.vocab_size, flush=True)
-        print("messages:", messages, flush=True)
+    # if input_ids_result.max().item() >= len(tokenizer):
+    #     print("⚠️ BAD TOKEN SAMPLE", flush=True)
+    #     print("max id:", input_ids_result.max().item(), flush=True)
+    #     print("tokenizer length:", len(tokenizer), flush=True)
+    #     print("vocab size:", tokenizer.vocab_size, flush=True)
+    #     print("messages:", messages, flush=True)
     assert isinstance(input_ids_result, torch.Tensor)
     input_ids = input_ids_result
     labels = input_ids.clone()
