@@ -44,7 +44,7 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --dynamo_backend no \
   open_instruct/finetune.py \
   --exp_name llama3_1_8B_base_7_3_rd \
-  --model_name_or_path meta-llama/Llama-3.1-8B\
+  --model_name_or_path meta-llama/Llama-3.1-8B \
   --use_slow_tokenizer \
   --chat_template tulu \
   --dataset_mixer_list \
