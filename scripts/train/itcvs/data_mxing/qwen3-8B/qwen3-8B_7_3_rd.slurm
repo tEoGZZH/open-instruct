@@ -1,7 +1,7 @@
 #!/usr/bin/zsh
 #SBATCH -J qwen3_8B_mixing_7_3
 #SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/qwen3_8B_mixing_7_3_%j.txt
-#SBATCH -t 06:00:00
+#SBATCH -t 20:00:00
 #SBATCH -c 16
 #SBATCH -p c23g
 #SBATCH --gres=gpu:1
@@ -42,14 +42,14 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --num_processes 1 \
   --num_machines 1 \
   --dynamo_backend no \
-  open_instruct/finetune.py \
+  open_instruct/finetune_test.py \
   --exp_name qwen3_8B_7_3_rd \
   --model_name_or_path Qwen/Qwen3-8B \
   --use_slow_tokenizer \
   --chat_template tulu \
   --dataset_mixer_list \
   /home/zs473554/projects/InstructionTunningWithCVS/data/instruction_tuning_dataset/moral_tuning_dataset_sampled.jsonl 0.7 \
-  allenai/tulu-3-sft-mixture 0.3 \
+  allenai/tulu-3-sft-mixture 0.1347 \
   --dataset_mixer_list_splits train \
   --output_dir /hpcwork/zs473554/checkpoints/open-instruct/qwen3-8B/mixing/seven_three/ \
   --do_not_randomize_output_dir \
@@ -61,7 +61,7 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --lr_scheduler_type linear \
   --warmup_ratio 0.03 \
   --weight_decay 0.0 \
-  --max_train_steps 10000 \
+  --max_train_steps 26354 \
   --checkpointing_steps 1000 \
   --eval_steps 1000 \
   --eval_ratio 0.001 \
