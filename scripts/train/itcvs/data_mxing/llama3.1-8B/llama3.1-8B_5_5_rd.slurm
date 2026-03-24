@@ -64,7 +64,7 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --lr_scheduler_type linear \
   --warmup_ratio 0.03 \
   --weight_decay 0.0 \
-  --max_train_steps 6588 \
+  --max_train_steps 26354 \
   --checkpointing_steps 1000 \
   --eval_steps 500 \
   --eval_ratio 0.001 \

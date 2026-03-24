@@ -52,7 +52,7 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --chat_template tulu \
   --dataset_mixer_list \
   /home/zs473554/projects/InstructionTunningWithCVS/data/instruction_tuning_dataset/moral_tuning_dataset_sampled.jsonl 0.5 \
-  allenai/tulu-3-sft-mixture 0.5 \
+  allenai/tulu-3-sft-mixture 0.2244 \
   --dataset_mixer_list_splits train \
   --output_dir /hpcwork/zs473554/checkpoints/open-instruct/qwen3-8B/mixing/five_five/ \
   --do_not_randomize_output_dir \
@@ -64,7 +64,7 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --lr_scheduler_type linear \
   --warmup_ratio 0.03 \
   --weight_decay 0.0 \
-  --max_train_steps 10000 \
+  --max_train_steps 26354 \
   --checkpointing_steps 1000 \
   --eval_steps 1000 \
   --eval_ratio 0.001 \
