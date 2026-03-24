@@ -58,7 +58,7 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --do_not_randomize_output_dir \
   --add_seed_and_date_to_exp_name False \
   --max_seq_length 2048 \
-  --per_device_train_batch_size 4 \
+  --per_device_train_batch_size 1 \
   --gradient_accumulation_steps 16 \
   --learning_rate 5e-6 \
   --lr_scheduler_type linear \
