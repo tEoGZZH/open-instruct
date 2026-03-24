@@ -45,7 +45,7 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --num_processes 1 \
   --num_machines 1 \
   --dynamo_backend no \
-  open_instruct/finetune.py \
+  open_instruct/finetune_test.py \
   --exp_name qwen3_8B_base_0_10_rd \
   --model_name_or_path Qwen/Qwen3-8B-Base \
   --use_slow_tokenizer \
