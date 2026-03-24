@@ -1,7 +1,7 @@
 #!/usr/bin/zsh
 #SBATCH -J llama3_1_8B_base_mixing_5_5
 #SBATCH -o /home/zs473554/projects/open-instruct/scripts/train/itcvs/log/llama3_1_8B_base_mixing_5_5_%j.txt
-#SBATCH -t 15:00:00
+#SBATCH -t 20:00:00
 #SBATCH -c 16
 #SBATCH -p c23g
 #SBATCH --gres=gpu:1
