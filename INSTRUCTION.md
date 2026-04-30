@@ -32,7 +32,7 @@ docker build . \
 
 Traning scripts for data mixing with llama3.1-8B model are stored at:
 ```
-/home/master_thesis/open-instruct/scripts/train/itcvs/data_mxing/llama3.1-8B
+scripts/train/itcvs/data_mxing/llama3.1-8B
 ```
 
 The structure is for the RWTH CLAIX cluster; if you’re using a different cluster, you may need to modify it accordingly.
