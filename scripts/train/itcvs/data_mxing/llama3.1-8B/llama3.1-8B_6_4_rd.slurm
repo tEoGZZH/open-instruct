@@ -45,7 +45,7 @@ srun --chdir=/home/zs473554/projects/open-instruct \
   --num_processes 1 \
   --num_machines 1 \
   --dynamo_backend no \
-  open_instruct/finetune.py \
+  open_instruct/finetune_test.py \
   --exp_name llama3_1_8B_base_6_4_rd \
   --model_name_or_path meta-llama/Llama-3.1-8B \
   --use_slow_tokenizer \
